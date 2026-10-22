@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Taller - Automóviles Macías</title>
+  <style>
+    :root {
+      --bg: #0f172a; --card: #1e293b; --accent: #3b82f6;
+      --text: #f8fafc; --muted: #94a3b8; --border: #334155;
+      --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+      --info: #06b6d4; --archive: #8b5cf6; --item-bg: #0f172a;
+    }
+
+    body.light-mode {
+      --bg: #f1f5f9; --card: #ffffff; --accent: #2563eb;
+      --text: #0f172a; --muted: #64748b; --border: #cbd5e1;
+      --item-bg: #f8fafc;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px; display: flex; gap: 20px; min-height: 100vh; flex-wrap: wrap; transition: background 0.3s, color 0.3s; }
+    
+    .main { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 20px; }
+    .sidebar { width: 320px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+    
+    .header-title-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    h1 { font-size: 1.5rem; color: var(--accent); }
+    h2 { font-size: 1.1rem; margin-bottom: 10px; }
+    
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 15px; }
+    .form-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 10px; }
+    
+    input, select, textarea, button {
+      padding: 10px; border-radius: 6px; border: 1px solid var(--border);
+      background: var(--item-bg); color: var(--text); font-size: 0.9rem;
+    }
+    button { background: var(--accent); cursor: pointer; font-weight: bold; border: none; transition: 0.2s; color: #fff; }
+    button:hover { opacity: 0.9; }
+    
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 10px; }
+    .stat-card {
+      background: var(--item-bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 12px; text-align: center;
+    }
+    .stat-card .num { font-size: 1.5rem; font-weight: bold; color: var(--accent); }
+    .stat-card .label { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+    .header-bar { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .tabs { display: flex; gap: 10px; }
+    .tab-btn { background: transparent; border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; color: var(--muted); cursor: pointer; }
+    .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+    /* FILTROS DE MECÁNICO */
+    .mech-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 15px; }
+    .mech-filter-btn { background: var(--item-bg); border: 1px solid var(--border); color: var(--muted); padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; }
+    .mech-filter-btn.active { background: var(--warning); color: #000; font-weight: bold; border-color: var(--warning); }
+    
+    .search-input { width: 220px; text-transform: uppercase; font-weight: bold; }
+    
+    .vehicles-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+    .vehicle-item {
+      background: var(--item-bg); border-left: 5px solid var(--border);
+      padding: 14px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+      border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    
+    .status-espera { border-left-color: var(--muted); }
+    .status-diagnostico { border-left-color: var(--accent); }
+    .status-presupuesto { border-left-color: var(--warning); }
+    .status-proceso { border-left-color: #2563eb; }
+    .status-prueba { border-left-color: var(--info); }
+    .status-terminado { border-left-color: var(--success); }
+    .status-archivado { border-left-color: var(--archive); }
+    
+    .badge { padding: 4px 10px; border-radius: 4px; font-size: 0.78rem; font-weight: bold; display: inline-block; }
+    .bg-espera { background: #334155; color: #f8fafc; }
+    .bg-diagnostico { background: #1e3a8a; color: #93c5fd; }
+    .bg-presupuesto { background: #78350f; color: #fde68a; }
+    .bg-proceso { background: #1d4ed8; color: #ffffff; }
+    .bg-prueba { background: #0e7490; color: #cffafe; }
+    .bg-terminado { background: #064e3b; color: #6ee7b7; }
+    .bg-archivado { background: #4c1d95; color: #ddd6fe; }
+
+    .prio-badge { padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: bold; text-transform: uppercase; }
+    .prio-urgente { background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
+    .prio-media { background: #78350f; color: #fde68a; border: 1px solid #f59e0b; }
+    .prio-normal { background: #064e3b; color: #6ee7b7; border: 1px solid #10b981; }
+
+    .mech-badge { background: #1e293b; color: #cbd5e1; border: 1px solid var(--border); padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; }
+
+    .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-sm { padding: 6px 10px; font-size: 0.8rem; border-radius: 4px; }
+    .btn-espera { background: #475569; color: #fff; }
+    .btn-diag { background: #1e3a8a; color: #93c5fd; }
+    .btn-presup { background: #b45309; color: #fff; }
+    .btn-proceso { background: #2563eb; color: #fff; }
+    .btn-listo { background: var(--success); color: #fff; }
+    .btn-archivar { background: var(--archive); color: #fff; }
+    .btn-historial { background: #0f766e; color: #fff; }
+    .btn-parts { background: #b45309; color: #fff; }
+    .btn-delete { background: var(--danger); color: #fff; }
+    .theme-toggle-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 6px; font-size: 0.85rem; }
+
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 1000; padding: 15px;
+    }
+    .modal-content {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      width: 100%; max-width: 600px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    .modal-header { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .modal-body { padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+    .modal-footer { padding: 15px 20px; border-top: 1px solid var(--border); text-align: right; }
+    
+    .history-card { background: var(--item-bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px; }
+    .history-date { font-size: 0.8rem; color: var(--accent); font-weight: bold; margin-bottom: 4px; }
+
+    .log-item { background: var(--item-bg); padding: 10px; border-radius: 6px; font-size: 0.85rem; border: 1px solid var(--border); }
+    .log-time { color: var(--muted); font-size: 0.75rem; display: block; margin-bottom: 4px; }
+    .loading { text-align: center; color: var(--muted); padding: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="main">
+    <div class="card">
+      <div class="header-title-bar">
+        <div>
+          <h1>Panel de Control de Taller</h1>
+          <p style="color: var(--muted); font-size: 0.88rem;">Automóviles Macías • Sincronización en directo con Google Sheets</p>
+        </div>
+        <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">☀️ Modo Claro</button>
+      </div>
+
+      <div class="stats-grid" style="margin-top: 15px;">
+        <div class="stat-card">
+          <div class="num" id="statTotal">0</div>
+          <div class="label">Coches en Taller</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="statUrgentes" style="color: var(--danger);">0</div>
+          <div class="label">🚨 Urgentes</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="statProceso" style="color: #3b82f6;">0</div>
+          <div class="label">En Reparación</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="statTerminado" style="color: var(--success);">0</div>
+          <div class="label">Listos / Recoger</div>
+        </div>
+      </div>
+      
+      <form id="vehicleForm" class="form-group" onsubmit="addVehicle(event)">
+        <input type="text" id="client" placeholder="Nombre del Cliente" required>
+        <input type="tel" id="phone" placeholder="Teléfono" required>
+        <input type="text" id="plate" placeholder="Matrícula" required style="text-transform: uppercase;">
+        <input type="text" id="task" placeholder="Trabajo (ej: Cambio de aceite)" required>
+        
+        <select id="mechanic">
+          <option value="">👨‍🔧 Sin asignar</option>
+          <option value="Jose">👨‍🔧 Jose</option>
+          <option value="Francisco">👨‍🔧 Francisco</option>
+          <option value="Paco">👨‍🔧 Paco</option>
+          <option value="Noah">👨‍🔧 Noah</option>
+        </select>
+        
+        <select id="priority">
+          <option value="normal">🟢 Prioridad: Normal</option>
+          <option value="media">🟡 Prioridad: Media</option>
+          <option value="urgente">🔴 Prioridad: URGENTE</option>
+        </select>
+
+        <button type="submit" id="btnSubmit" style="grid-column: 1 / -1;">+ Añadir Vehículo al Taller</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="header-bar">
+        <div class="tabs">
+          <button id="tabActive" class="tab-btn active" onclick="switchTab('active')">🚗 Taller Activo</button>
+          <button id="tabArchive" class="tab-btn" onclick="switchTab('archive')">📦 Histórico</button>
+        </div>
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar matrícula..." oninput="render()">
+      </div>
+
+      <!-- BOTONES DE FILTRO RÁPIDO POR MECÁNICO -->
+      <div class="mech-filters" id="mechFilters">
+        <button class="mech-filter-btn active" onclick="filterByMechanic('ALL', this)">Todos</button>
+        <button class="mech-filter-btn" onclick="filterByMechanic('Jose', this)">Jose</button>
+        <button class="mech-filter-btn" onclick="filterByMechanic('Francisco', this)">Francisco</button>
+        <button class="mech-filter-btn" onclick="filterByMechanic('Paco', this)">Paco</button>
+        <button class="mech-filter-btn" onclick="filterByMechanic('Noah', this)">Noah</button>
+      </div>
+
+      <h2 id="sectionTitle">Vehículos en Taller</h2>
+      <div id="vehiclesList" class="vehicles-list">
+        <div class="loading">Cargando vehículos desde la nube...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <h2>Registro de Cambios</h2>
+    <div id="logList" style="display: flex; flex-direction: column; gap: 10px;">
+      <p style="color: var(--muted); font-size: 0.85rem;">Aquí verás las acciones recientes y avisos de WhatsApp enviados.</p>
+    </div>
+  </div>
+
+  <!-- MODAL DE HISTORIAL Y NOTAS -->
+  <div id="historyModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle" style="color: var(--accent);">Historial del Vehículo</h3>
+        <button onclick="closeModal()" style="background: transparent; color: var(--muted); font-size: 1.2rem; cursor: pointer; border:none;">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button onclick="closeModal()" style="background: var(--border);">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzIyxw5sus-ChLaiW5XBY8NGgK4AB1U4Igwh7jl2vrcuq3B9D4dsGOd-wNRilBBtE_eFQ/exec";
+
+    let vehicles = [];
+    let currentTab = 'active';
+    let selectedMechanicFilter = 'ALL';
+    let lastDeletedVehicle = null;
+
+    function initTheme() {
+      const isLight = localStorage.getItem('theme') === 'light';
+      if (isLight) {
+        document.body.classList.add('light-mode');
+        document.getElementById('themeBtn').innerText = '🌙 Modo Oscuro';
+      }
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('light-mode');
+      const isLight = document.body.classList.contains('light-mode');
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      document.getElementById('themeBtn').innerText = isLight ? '🌙 Modo Oscuro' : '☀️ Modo Claro';
+    }
+
+    async function loadVehicles() {
+      try {
+        const response = await fetch(WEB_APP_URL);
+        const data = await response.json();
+        vehicles = Array.isArray(data) ? data : [];
+        render();
+      } catch (error) {
+        console.error("Error al cargar:", error);
+        document.getElementById('vehiclesList').innerHTML = '<div style="color: var(--danger); text-align: center; padding: 20px;">Error al conectar con Google Sheets. Comprueba la conexión.</div>';
+      }
+    }
+
+    function updateStats() {
+      const activeList = vehicles.filter(v => v.status !== 'archivado' && v.status !== 'entregado');
+      document.getElementById('statTotal').innerText = activeList.length;
+      document.getElementById('statUrgentes').innerText = activeList.filter(v => (v.priority || '').toLowerCase() === 'urgente').length;
+      document.getElementById('statProceso').innerText = activeList.filter(v => (v.status || '').toLowerCase() === 'proceso' || (v.status || '').toLowerCase() === 'en proceso').length;
+      document.getElementById('statTerminado').innerText = activeList.filter(v => (v.status || '').toLowerCase() === 'terminado').length;
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tabActive').classList.toggle('active', tab === 'active');
+      document.getElementById('tabArchive').classList.toggle('active', tab === 'archive');
+      document.getElementById('sectionTitle').innerText = tab === 'active' ? 'Vehículos en Taller' : 'Histórico de Vehículos Archivados';
+      render();
+    }
+
+    function filterByMechanic(mech, btnElement) {
+      selectedMechanicFilter = mech;
+      
+      // Cambiar clases activas en los botones de filtro
+      const buttons = document.querySelectorAll('.mech-filter-btn');
+      buttons.forEach(b => b.classList.remove('active'));
+      btnElement.classList.add('active');
+
+      render();
+    }
+
+    function render() {
+      updateStats();
+
+      const list = document.getElementById('vehiclesList');
+      list.innerHTML = '';
+
+      const searchTerm = document.getElementById('searchInput').value.trim().toUpperCase();
+
+      let filteredVehicles = vehicles.filter(v => {
+        const isArchived = (v.status === 'archivado' || v.status === 'entregado');
+        const matchesTab = (currentTab === 'active') ? !isArchived : isArchived;
+        
+        // Filtro por mecánico seleccionado en los botones superiores
+        const matchesMechanic = (selectedMechanicFilter === 'ALL') || 
+          (v.mechanic && v.mechanic.toLowerCase() === selectedMechanicFilter.toLowerCase());
+
+        const matchesSearch = !searchTerm || 
+          (v.plate && v.plate.toUpperCase().includes(searchTerm)) || 
+          (v.client && v.client.toUpperCase().includes(searchTerm)) ||
+          (v.mechanic && v.mechanic.toUpperCase().includes(searchTerm));
+
+        return matchesTab && matchesMechanic && matchesSearch;
+      });
+
+      // Ordenar: Los URGENTES aparecen primero
+      filteredVehicles.sort((a, b) => {
+        if (a.priority === 'urgente' && b.priority !== 'urgente') return -1;
+        if (a.priority !== 'urgente' && b.priority === 'urgente') return 1;
+        return 0;
+      });
+
+      if (filteredVehicles.length === 0) {
+        const msg = searchTerm || selectedMechanicFilter !== 'ALL'
+          ? 'No se ha encontrado ningún coche con esos filtros.' 
+          : (currentTab === 'active' ? 'No hay vehículos en reparación actualmente.' : 'No hay vehículos archivados.');
+        list.innerHTML = `<p style="color: var(--muted); text-align: center; padding: 20px;">${msg}</p>`;
+        return;
+      }
+
+      filteredVehicles.forEach(v => {
+        const item = document.createElement('div');
+        const st = (v.status || 'espera').toLowerCase();
+        item.className = `vehicle-item status-${st}`;
+        
+        let statusBadge = '';
+        if(st === 'espera') statusBadge = '<span class="badge bg-espera">📥 1. Recepcionado</span>';
+        else if(st === 'diagnostico') statusBadge = '<span class="badge bg-diagnostico">🔍 2. En Diagnóstico</span>';
+        else if(st === 'presupuesto') statusBadge = '<span class="badge bg-presupuesto">📄 3. Pendiente Presupuesto</span>';
+        else if(st === 'proceso' || st === 'en proceso') statusBadge = '<span class="badge bg-proceso">🛠️ 4. En Reparación</span>';
+        else if(st === 'prueba') statusBadge = '<span class="badge bg-prueba">🚗 5. En Prueba</span>';
+        else if(st === 'terminado') statusBadge = '<span class="badge bg-terminado">✅ 6. Listo para Entregar</span>';
+        else if(st === 'archivado' || st === 'entregado') statusBadge = '<span class="badge bg-archivado">🏁 Entregado / Archivado</span>';
+
+        let prio = (v.priority || 'normal').toLowerCase();
+        let prioBadge = `<span class="prio-badge prio-${prio}">Prioridad: ${prio}</span>`;
+        let mechBadge = v.mechanic ? `<span class="mech-badge">👨‍🔧 ${v.mechanic}</span>` : '';
+
+        let actionButtons = `
+          <button class="btn-sm btn-historial" title="Ver historial de visitas" onclick="openHistory('${v.plate}')">📜 Historial</button>
+        `;
+
+        if (currentTab === 'active') {
+          actionButtons += `
+            <button class="btn-sm btn-parts" title="Enviar aviso de recambios por WhatsApp" onclick="sendPartsWhatsApp('${v.client}', '${v.phone}', '${v.plate}')">📦 Recambios</button>
+            <button class="btn-sm btn-diag" onclick="changeStatus('${v.id}', 'diagnostico')">Diag.</button>
+            <button class="btn-sm btn-presup" onclick="changeStatus('${v.id}', 'presupuesto')">Presup.</button>
+            <button class="btn-sm btn-proceso" onclick="changeStatus('${v.id}', 'proceso')">Reparar</button>
+            <button class="btn-sm btn-listo" onclick="changeStatus('${v.id}', 'terminado')">Listo</button>
+            <button class="btn-sm btn-archivar" onclick="changeStatus('${v.id}', 'archivado')">📦 Archivar</button>
+          `;
+        } else {
+          actionButtons += `
+            <button class="btn-sm btn-espera" onclick="changeStatus('${v.id}', 'espera')">🔄 Reabrir</button>
+          `;
+        }
+
+        actionButtons += `<button class="btn-sm btn-delete" title="Eliminar definitivamente" onclick="deleteVehicle('${v.id}')">🗑️</button>`;
+
+        const dateStr = v.date ? `<span style="font-size:0.75rem; color:var(--muted); font-weight:normal;"> (${v.date})</span>` : '';
+
+        item.innerHTML = `
+          <div>
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom: 4px;">
+              <strong style="font-size: 1.15rem; color: var(--accent);">${v.plate}</strong>
+              ${prioBadge}
+              ${mechBadge}
+            </div>
+            <strong>${v.client}</strong> (${v.phone})
+            <div style="font-size: 0.88rem; color: var(--muted); margin-top: 3px;">Trabajo: ${v.task}${dateStr}</div>
+            ${v.notes ? `<div style="font-size: 0.82rem; color: #fde68a; margin-top: 4px;">📝 <b>Nota:</b> ${v.notes}</div>` : ''}
+            <div style="margin-top: 8px;">${statusBadge}</div>
+          </div>
+          <div class="actions">
+            ${actionButtons}
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function sendPartsWhatsApp(client, phone, plate) {
+      const mensaje = encodeURIComponent(`Hola ${client}, estamos a la espera de recibir una pieza para tu vehículo (${plate}). Te avisamos en cuanto la montemos. - Automóviles Macías`);
+      window.open(`https://wa.me/${phone}?text=${mensaje}`, '_blank');
+      addLog(`📦 <b>Aviso recambios WhatsApp enviado a:</b> ${client} (${plate})`);
+    }
+
+    function openHistory(plate) {
+      const modal = document.getElementById('historyModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalBody = document.getElementById('modalBody');
+
+      modalTitle.innerText = `Historial de Reparaciones • Matrícula: ${plate}`;
+      modalBody.innerHTML = '';
+
+      const records = vehicles.filter(v => v.plate && v.plate.toUpperCase().replace(/[\s-]/g, '') === plate.toUpperCase().replace(/[\s-]/g, ''));
+
+      if (records.length === 0) {
+        modalBody.innerHTML = '<p style="color: var(--muted); text-align: center;">No hay registros previos para esta matrícula.</p>';
+      } else {
+        records.forEach((rec, index) => {
+          const div = document.createElement('div');
+          div.className = 'history-card';
+          const fechaHora = rec.date || 'Fecha no registrada';
+          
+          div.innerHTML = `
+            <div class="history-date">📅 Entrada: ${fechaHora} • Estado: ${rec.status || 'Registrado'}</div>
+            <div style="font-size: 0.95rem; font-weight: bold; margin-bottom: 4px;">🛠️ Trabajo: ${rec.task || 'Sin especificar'}</div>
+            ${rec.mechanic ? `<div style="font-size:0.8rem; color:var(--muted);">👨‍🔧 Atendido por: ${rec.mechanic}</div>` : ''}
+            <div style="margin-top: 8px;">
+              <label style="font-size: 0.8rem; color: var(--muted); display: block; margin-bottom: 3px;">Notas adicionales / Trabajos extra realizados:</label>
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="note_${rec.id}" value="${rec.notes || ''}" placeholder="Ej: Se cambió también el filtro..." style="flex: 1; font-size: 0.85rem; padding: 6px;">
+                <button class="btn-sm" onclick="saveNote('${rec.id}')" style="background: var(--success);">Guardar Nota</button>
+              </div>
+            </div>
+          `;
+          modalBody.appendChild(div);
+        });
+      }
+
+      modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('historyModal').style.display = 'none';
+    }
+
+    async function saveNote(id) {
+      const input = document.getElementById(`note_${id}`);
+      const newNote = input.value.trim();
+      const vehicle = vehicles.find(v => v.id == id);
+      if (!vehicle) return;
+
+      vehicle.notes = newNote;
+      render();
+
+      try {
+        await fetch(WEB_APP_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "updateNote",
+            id: id,
+            notes: newNote
+          })
+        });
+        addLog(`📝 <b>Nota guardada (${vehicle.plate}):</b> ${newNote}`);
+        alert("¡Nota guardada correctamente!");
+      } catch (error) {
+        alert("Error al guardar la nota en la nube.");
+      }
+    }
+
+    async function addVehicle(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmit');
+      btn.disabled = true;
+      btn.textContent = "Guardando...";
+
+      const now = new Date();
+      const fechaHoraActual = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const newV = {
+        action: "add",
+        id: "v_" + Date.now(),
+        client: document.getElementById('client').value,
+        phone: document.getElementById('phone').value,
+        plate: document.getElementById('plate').value.toUpperCase(),
+        task: document.getElementById('task').value,
+        status: 'espera',
+        notes: '',
+        date: fechaHoraActual,
+        mechanic: document.getElementById('mechanic').value,
+        priority: document.getElementById('priority').value
+      };
+
+      try {
+        await fetch(WEB_APP_URL, {
+          method: "POST",
+          body: JSON.stringify(newV)
+        });
+        vehicles.push(newV);
+        document.getElementById('vehicleForm').reset();
+        render();
+        addLog(`🚗 <b>Nuevo coche (${newV.plate}):</b> Prioridad ${newV.priority.toUpperCase()}`);
+      } catch (error) {
+        alert("Hubo un error al guardar en la nube.");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "+ Añadir Vehículo al Taller";
+      }
+    }
+
+    async function deleteVehicle(id) {
+      const vehicleIndex = vehicles.findIndex(v => v.id == id);
+      if (vehicleIndex === -1) return;
+      
+      const vehicle = vehicles[vehicleIndex];
+
+      if (!confirm(`⚠️ ¿Seguro que deseas ELIMINAR el registro de ${vehicle.plate} (${vehicle.client})?`)) {
+        return;
+      }
+
+      lastDeletedVehicle = { vehicle: { ...vehicle }, index: vehicleIndex };
+      vehicles.splice(vehicleIndex, 1);
+      render();
+
+      try {
+        await fetch(WEB_APP_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "delete",
+            id: id
+          })
+        });
+
+        addLog(`🗑️ <b>Eliminado:</b> ${vehicle.plate} <button onclick="undoDelete()" style="background:transparent; color:var(--accent); text-decoration:underline; border:none; cursor:pointer; font-size:0.8rem; padding:0; margin-left:6px;">↩️ Deshacer</button>`);
+      } catch (error) {
+        alert("Error al eliminar el registro en la nube.");
+      }
+    }
+
+    async function undoDelete() {
+      if (!lastDeletedVehicle) return alert("No hay ningún elemento reciente para restaurar.");
+
+      const restoredV = lastDeletedVehicle.vehicle;
+      restoredV.action = "add";
+
+      try {
+        await fetch(WEB_APP_URL, {
+          method: "POST",
+          body: JSON.stringify(restoredV)
+        });
+
+        vehicles.splice(lastDeletedVehicle.index, 0, restoredV);
+        lastDeletedVehicle = null;
+        render();
+        addLog(`↩️ <b>Restaurado:</b> ${restoredV.plate}`);
+        alert("¡Registro restaurado con éxito!");
+      } catch (error) {
+        alert("Error al restaurar el vehículo.");
+      }
+    }
+
+    async function changeStatus(id, newStatus) {
+      const vehicle = vehicles.find(v => v.id == id);
+      if (!vehicle) return;
+      
+      vehicle.status = newStatus;
+      render();
+
+      try {
+        await fetch(WEB_APP_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "update",
+            id: id,
+            status: newStatus
+          })
+        });
+
+        if (newStatus === 'terminado') {
+          const mensaje = encodeURIComponent(`Hola ${vehicle.client}, le informamos desde Automóviles Macías que su vehículo con matrícula ${vehicle.plate} ya está listo para recoger en el taller.`);
+          window.open(`https://wa.me/${vehicle.phone}?text=${mensaje}`, '_blank');
+          addLog(`📱 <b>Aviso WhatsApp listo para:</b> ${vehicle.client}`);
+        } else if (newStatus === 'archivado') {
+          addLog(`📦 <b>${vehicle.plate}:</b> Vehículo archivado.`);
+        }
+      } catch (error) {
+        alert("Error al actualizar el estado.");
+      }
+    }
+
+    function addLog(msg) {
+      const logList = document.getElementById('logList');
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const log = document.createElement('div');
+      log.className = 'log-item';
+      log.innerHTML = `<span class="log-time">${time}</span>${msg}`;
+      logList.prepend(log);
+    }
+
+    initTheme();
+    loadVehicles();
+  </script>
+</body>
+</html>
