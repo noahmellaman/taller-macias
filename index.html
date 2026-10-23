@@ -28,7 +28,6 @@
 
     body {
       background: #080b10;
-      /* Fondo Real de Taller Mecánico Industrial */
       background-image: 
         linear-gradient(180deg, rgba(8, 11, 16, 0.85) 0%, rgba(8, 11, 16, 0.95) 100%),
         url('https://images.unsplash.com/photo-1613214149922-f1809c99b414?q=80&w=1920&auto=format&fit=crop');
@@ -52,7 +51,7 @@
       gap: 22px;
     }
 
-    /* TARJETA ESTILO INDUSTRIAL CON BARRAS DE SEGURIDAD */
+    /* TARJETA ESTILO INDUSTRIAL */
     .workshop-card {
       background: var(--card-bg);
       backdrop-filter: blur(16px);
@@ -128,7 +127,7 @@
       margin-top: 4px;
     }
 
-    /* BUSCADOR DE MATRÍCULA LIMPIO Y DIRECTO */
+    /* BUSCADOR DE MATRÍCULA */
     .search-box-container {
       margin-top: 24px;
       display: flex;
@@ -209,9 +208,7 @@
       background: linear-gradient(135deg, #ff7a1a 0%, #e65c00 100%);
     }
 
-    .btn-submit:active {
-      transform: translateY(0);
-    }
+    .btn-submit:active { transform: translateY(0); }
 
     /* RESULTADO DE LA REPARACIÓN */
     .result-section {
@@ -275,6 +272,43 @@
     .detail-label { color: var(--text-muted); }
     .detail-value { font-weight: 600; color: #ffffff; text-align: right; }
 
+    /* BOTÓN DE REFRESCAR ESTADO */
+    .refresh-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .btn-refresh-status {
+      background: rgba(255, 107, 0, 0.15);
+      border: 1px solid var(--accent-orange);
+      color: var(--accent-orange);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-refresh-status:hover {
+      background: var(--accent-orange);
+      color: #ffffff;
+    }
+
+    .btn-refresh-status.spinning .spin-icon {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     /* CRONOGRAMA PASO A PASO */
     .status-timeline {
       display: flex;
@@ -336,9 +370,7 @@
       margin-top: 2px;
     }
 
-    .timeline-step.active .step-desc-text {
-      color: #fed7aa;
-    }
+    .timeline-step.active .step-desc-text { color: #fed7aa; }
 
     /* BOTONES DE CONTACTO */
     .actions-grid {
@@ -395,8 +427,8 @@
           <span class="input-icon">🔍</span>
           <input type="text" id="plateInput" class="plate-input" placeholder="INGRESA TU MATRÍCULA" maxlength="10">
         </div>
-        <button class="btn-submit" onclick="checkStatus()">
-          <span>Consultar Estado</span>
+        <button class="btn-submit" id="searchBtn" onclick="checkStatus()">
+          <span id="btnText">Consultar Estado</span>
         </button>
       </div>
     </div>
@@ -434,7 +466,12 @@
         </div>
       </div>
 
-      <h3 style="font-family: 'Chakra Petch', sans-serif; font-size: 1rem; color: var(--accent-orange); text-transform: uppercase;">Estado de la Reparación</h3>
+      <div class="refresh-bar">
+        <h3 style="font-family: 'Chakra Petch', sans-serif; font-size: 1rem; color: var(--accent-orange); text-transform: uppercase;">Estado de la Reparación</h3>
+        <button class="btn-refresh-status" id="refreshBtn" onclick="checkStatus(true)">
+          <span class="spin-icon">🔄</span> Actualizar Estado
+        </button>
+      </div>
 
       <!-- TIMELINE DE ESTADOS -->
       <div class="status-timeline">
@@ -503,17 +540,43 @@
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzIyxw5sus-ChLaiW5XBY8NGgK4AB1U4Igwh7jl2vrcuq3B9D4dsGOd-wNRilBBtE_eFQ/exec";
     const STATUS_ORDER = ['espera', 'diagnostico', 'presupuesto', 'proceso', 'prueba', 'terminado'];
 
-    async function checkStatus() {
+    // AL Cargar la página: busca si hay matrícula en la URL o guardada de antes
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlPlate = urlParams.get('matricula');
+      const savedPlate = localStorage.getItem('macias_last_plate');
+
+      const plateToUse = urlPlate || savedPlate;
+
+      if (plateToUse) {
+        document.getElementById('plateInput').value = plateToUse;
+        checkStatus();
+      }
+    });
+
+    async function checkStatus(isSoftRefresh = false) {
       const input = document.getElementById('plateInput').value.trim().toUpperCase().replace(/[\s-]/g, '');
       const errorMsg = document.getElementById('errorMsg');
       const resultContainer = document.getElementById('resultContainer');
+      const refreshBtn = document.getElementById('refreshBtn');
+      const searchBtn = document.getElementById('searchBtn');
+      const btnText = document.getElementById('btnText');
 
       errorMsg.style.display = 'none';
-      resultContainer.style.display = 'none';
 
       if (!input) {
         alert("Por favor, introduce una matrícula.");
         return;
+      }
+
+      // Guardar la matrícula en el almacenamiento local
+      localStorage.setItem('macias_last_plate', input);
+
+      if (isSoftRefresh) {
+        refreshBtn.classList.add('spinning');
+      } else {
+        btnText.innerText = "Consultando...";
+        searchBtn.disabled = true;
       }
 
       try {
@@ -523,6 +586,7 @@
         const vehicle = data.find(v => v.plate && v.plate.toUpperCase().replace(/[\s-]/g, '') === input);
 
         if (!vehicle) {
+          resultContainer.style.display = 'none';
           errorMsg.style.display = 'block';
           return;
         }
@@ -554,6 +618,10 @@
       } catch (error) {
         console.error("Error:", error);
         alert("No se pudo conectar con el servidor del taller. Inténtalo de nuevo.");
+      } finally {
+        refreshBtn.classList.remove('spinning');
+        btnText.innerText = "Consultar Estado";
+        searchBtn.disabled = false;
       }
     }
 
