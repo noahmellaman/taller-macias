@@ -16,24 +16,34 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
-    .container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 20px; }
+    .container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 20px; }
     
-    header { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+    header { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
     h1 { font-family: 'Chakra Petch', sans-serif; font-size: 1.5rem; color: #ffffff; }
     .badge-taller { background: rgba(255,107,0,0.15); color: var(--accent); padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; border: 1px solid var(--accent); }
 
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
     .card-title { font-family: 'Chakra Petch', sans-serif; font-size: 1.1rem; color: var(--accent); text-transform: uppercase; }
 
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
-    input, select, textarea { background: #090d14; border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: #fff; font-size: 1rem; outline: none; width: 100%; }
+    .vehicle-list { display: flex; flex-direction: column; gap: 14px; }
+    .vehicle-item { background: rgba(9, 13, 20, 0.8); border: 1px solid var(--border); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .vehicle-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .plate-badge { background: #cbd5e1; color: #0f172a; font-family: 'Chakra Petch', sans-serif; font-weight: 700; padding: 4px 10px; border-radius: 6px; font-size: 1.1rem; letter-spacing: 2px; }
+    
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    label { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+    input, select, textarea { background: #090d14; border: 1px solid var(--border); border-radius: 8px; padding: 10px; color: #fff; font-size: 0.95rem; outline: none; width: 100%; }
     input:focus, select:focus, textarea:focus { border-color: var(--accent); }
 
-    .btn { background: linear-gradient(135deg, #ff6b00 0%, #d95200 100%); color: #fff; border: none; padding: 14px; border-radius: 8px; font-weight: bold; font-family: 'Chakra Petch', sans-serif; font-size: 1.05rem; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+    .btn { background: linear-gradient(135deg, #ff6b00 0%, #d95200 100%); color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; font-family: 'Chakra Petch', sans-serif; font-size: 0.95rem; cursor: pointer; text-transform: uppercase; }
     .btn:hover { opacity: 0.9; }
+    .btn-photo { background: #2563eb; }
 
-    .upload-box { background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--border); padding: 14px; border-radius: 8px; display: flex; flex-direction: column; gap: 10px; }
+    .upload-box { background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--border); padding: 12px; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .loading-msg { text-align: center; color: var(--text-muted); padding: 20px; font-style: italic; }
   </style>
 </head>
 <body>
@@ -41,50 +51,21 @@
   <div class="container">
     <header>
       <div>
-        <h1>🛠️ Panel de Mecánicos</h1>
-        <p style="font-size: 0.85rem; color: var(--text-muted);">Automóviles Macías - Gestión Interna</p>
+        <h1>🛠️ Panel de Control - Taller</h1>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Automóviles Macías • Gestión Interna</p>
       </div>
-      <div class="badge-taller">TALLER ACTIVO</div>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <button class="btn" onclick="loadVehicles()" style="padding: 8px 12px; font-size: 0.85rem;">🔄 Recargar</button>
+        <div class="badge-taller">AUTOMÓVILES MACÍAS</div>
+      </div>
     </header>
 
-    <!-- SECCIÓN: ACTUALIZAR ESTADO Y NOTAS -->
     <div class="card">
-      <div class="card-title">1. Actualizar Estado de Vehículo</div>
-      <div class="form-group">
-        <label>Matrícula del vehículo:</label>
-        <input type="text" id="targetPlate" placeholder="Ej: 1234ABC" style="text-transform: uppercase;">
-      </div>
-      <div class="form-group">
-        <label>Nuevo Estado:</label>
-        <select id="newStatus">
-          <option value="espera">1. Recepción (En espera)</option>
-          <option value="diagnostico">2. En Diagnóstico</option>
-          <option value="presupuesto">3. Presupuesto / Recambios</option>
-          <option value="proceso">4. En Reparación</option>
-          <option value="prueba">5. En Prueba</option>
-          <option value="terminado">6. Listo para Recoger</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Nota para el cliente (opcional):</label>
-        <textarea id="workshopNotes" rows="2" placeholder="Ej: Culata rectificada, esperando junta nueva..."></textarea>
-      </div>
-      <button class="btn" onclick="updateStatus()">Guardar Cambios</button>
-    </div>
-
-    <!-- SECCIÓN: SUBIR FOTOS A DRIVE -->
-    <div class="card">
-      <div class="card-title">2. Subir Fotos de Avance (Drive del Taller)</div>
-      <div class="upload-box">
-        <div class="form-group">
-          <label>Seleccionar Foto (o hacer foto con la cámara del móvil):</label>
-          <input type="file" id="photoFileInput" accept="image/*" capture="environment">
-        </div>
-        <div class="form-group">
-          <label>Descripción de la foto:</label>
-          <input type="text" id="photoComment" placeholder="Ej: Estado actual de la culata">
-        </div>
-        <button class="btn" onclick="uploadPhoto()" style="background: #2563eb;">Subir Foto a Google Drive</button>
+      <div class="card-title">Listado de Vehículos en Taller y Avances</div>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">Aquí aparecen todos los coches. Puedes cambiar su estado, añadir notas o subir fotos de avance directamente a Google Drive.</p>
+      
+      <div id="vehiclesContainer" class="vehicle-list">
+        <div class="loading-msg">Cargando vehículos desde la hoja de cálculo...</div>
       </div>
     </div>
   </div>
@@ -92,15 +73,80 @@
   <script>
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz1tzWOHfahpYJyQNeT2La7KtRiMRK2L8fYKaaWjwpJXUti7Px8VL_s6Qnk2hg-h9SU/exec";
 
-    async function updateStatus() {
-      const plate = document.getElementById('targetPlate').value.trim().toUpperCase();
-      const status = document.getElementById('newStatus').value;
-      const notes = document.getElementById('workshopNotes').value.trim();
+    window.addEventListener('DOMContentLoaded', () => {
+      loadVehicles();
+    });
 
-      if (!plate) {
-        alert("Por favor, introduce la matrícula.");
-        return;
+    async function loadVehicles() {
+      const container = document.getElementById('vehiclesContainer');
+      container.innerHTML = '<div class="loading-msg">Actualizando lista de vehículos...</div>';
+
+      try {
+        const response = await fetch(WEB_APP_URL);
+        const data = await response.json();
+
+        if (!data || data.length === 0) {
+          container.innerHTML = '<div class="loading-msg">No hay vehículos registrados en la hoja de cálculo.</div>';
+          return;
+        }
+
+        container.innerHTML = '';
+
+        data.forEach((vehicle, index) => {
+          const item = document.createElement('div');
+          item.className = 'vehicle-item';
+          
+          item.innerHTML = `
+            <div class="vehicle-header">
+              <div>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Cliente: <b>${vehicle.client || 'Sin nombre'}</b></span>
+                <div style="font-size: 0.95rem; font-weight: 600; color: #fff;">${vehicle.task || 'Mantenimiento General'}</div>
+              </div>
+              <div class="plate-badge">${vehicle.plate}</div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Estado Actual:</label>
+                <select id="status_${index}">
+                  <option value="espera" ${vehicle.status === 'espera' ? 'selected' : ''}>1. Recepción (En espera)</option>
+                  <option value="diagnostico" ${vehicle.status === 'diagnostico' ? 'selected' : ''}>2. En Diagnóstico</option>
+                  <option value="presupuesto" ${vehicle.status === 'presupuesto' ? 'selected' : ''}>3. Presupuesto / Recambios</option>
+                  <option value="proceso" ${vehicle.status === 'proceso' ? 'selected' : ''}>4. En Reparación</option>
+                  <option value="prueba" ${vehicle.status === 'prueba' ? 'selected' : ''}>5. En Prueba</option>
+                  <option value="terminado" ${vehicle.status === 'terminado' ? 'selected' : ''}>6. Listo para Recoger</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Nota rápida:</label>
+                <input type="text" id="notes_${index}" value="${vehicle.notes || ''}" placeholder="Ej: Culata rectificada...">
+              </div>
+            </div>
+
+            <button class="btn" onclick="updateVehicle('${vehicle.plate}', ${index})">Guardar Cambios de Estado</button>
+
+            <!-- ZONA DE SUBIDA DE FOTOS -->
+            <div class="upload-box">
+              <label style="color: var(--accent);">📷 Subir Foto de Avance (Drive del Taller):</label>
+              <div class="form-row">
+                <input type="file" id="photoFile_${index}" accept="image/*" capture="environment" style="padding: 6px; font-size: 0.85rem;">
+                <input type="text" id="photoComment_${index}" placeholder="Comentario (ej: Estado de la junta)" style="font-size: 0.85rem;">
+              </div>
+              <button class="btn btn-photo" onclick="uploadVehiclePhoto('${vehicle.plate}', ${index})" style="width: 100%; margin-top: 4px;">Subir Foto a Google Drive</button>
+            </div>
+          `;
+          container.appendChild(item);
+        });
+
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = '<div class="loading-msg" style="color: #fca5a5;">Error al cargar los datos del taller. Comprueba tu conexión.</div>';
       }
+    }
+
+    async function updateVehicle(plate, index) {
+      const status = document.getElementById(`status_${index}`).value;
+      const notes = document.getElementById(`notes_${index}`).value;
 
       const payload = {
         action: "updateStatus",
@@ -109,7 +155,7 @@
         notes: notes
       };
 
-      alert("Actualizando estado...");
+      alert("Actualizando vehículo " + plate + "...");
 
       try {
         const response = await fetch(WEB_APP_URL, {
@@ -118,8 +164,8 @@
         });
         const result = await response.json();
         if (result.result === "success") {
-          alert("¡Estado actualizado con éxito!");
-          document.getElementById('workshopNotes').value = "";
+          alert("¡Actualizado correctamente!");
+          loadVehicles();
         } else {
           alert("Error al actualizar.");
         }
@@ -129,18 +175,12 @@
       }
     }
 
-    async function uploadPhoto() {
-      const plate = document.getElementById('targetPlate').value.trim().toUpperCase();
-      const fileInput = document.getElementById('photoFileInput');
-      const commentInput = document.getElementById('photoComment');
-
-      if (!plate) {
-        alert("Introduce primero la matrícula arriba del coche que estás reparando.");
-        return;
-      }
+    async function uploadVehiclePhoto(plate, index) {
+      const fileInput = document.getElementById(`photoFile_${index}`);
+      const commentInput = document.getElementById(`photoComment_${index}`);
 
       if (!fileInput.files || fileInput.files.length === 0) {
-        alert("Por favor, selecciona una foto o haz una foto con la cámara.");
+        alert("Por favor, selecciona una foto o hazla con la cámara.");
         return;
       }
 
@@ -157,7 +197,7 @@
           comment: commentInput.value || "Avance de reparación"
         };
 
-        alert("Subiendo imagen al Google Drive del taller...");
+        alert("Subiendo foto a Google Drive para el coche " + plate + "...");
 
         try {
           const res = await fetch(WEB_APP_URL, {
@@ -166,9 +206,10 @@
           });
           const data = await res.json();
           if (data.result === "success") {
-            alert("¡Foto subida correctamente a Drive! Ya aparece en el portal del cliente.");
+            alert("¡Foto subida y enlazada correctamente!");
             fileInput.value = "";
             commentInput.value = "";
+            loadVehicles();
           } else {
             alert("Error al subir la foto.");
           }
