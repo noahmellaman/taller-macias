@@ -369,8 +369,8 @@
         let prio = (v.priority || 'normal').toLowerCase();
         let prioBadge = `<span class="prio-badge prio-${prio}">Prioridad: ${prio}</span>`;
         
-        // CORREGIDO: Aquí mostramos correctamente el mecánico asignado con su icono, y separado el trabajo
-        let mechBadge = v.mechanic ? `<span class="mech-badge">👨‍🔧 ${v.mechanic}</span>` : '';
+        // Mecánico claramente diferenciado con su etiqueta
+        let mechBadge = v.mechanic ? `<span class="mech-badge">👨‍🔧 Mecánico: <b>${v.mechanic}</b></span>` : '<span class="mech-badge" style="color:var(--muted);">👨‍🔧 Sin asignar</span>';
 
         let actionButtons = `
           <button class="btn-sm btn-historial" title="Ver historial de visitas" onclick="openHistory('${v.plate}')">📜 Historial</button>
@@ -398,13 +398,13 @@
 
         item.innerHTML = `
           <div>
-            <div style="display:flex; gap:8px; align-items:center; margin-bottom: 4px;">
-              <strong style="font-size: 1.15rem; color: var(--accent);">${v.plate}</strong>
+            <div style="display:flex; gap:10px; align-items:center; margin-bottom: 6px; flex-wrap: wrap;">
+              <strong style="font-size: 1.2rem; color: var(--accent);">${v.plate}</strong>
               ${prioBadge}
               ${mechBadge}
             </div>
             <strong>${v.client}</strong> (${v.phone})
-            <div style="font-size: 0.88rem; color: var(--muted); margin-top: 3px;">Trabajo: ${v.task}${dateStr}</div>
+            <div style="font-size: 0.88rem; color: var(--text); margin-top: 4px;">🛠️ Trabajo: <b>${v.task}</b>${dateStr}</div>
             ${v.notes ? `<div style="font-size: 0.82rem; color: #fde68a; margin-top: 4px;">📝 <b>Nota:</b> ${v.notes}</div>` : ''}
             <div style="margin-top: 8px;">${statusBadge}</div>
           </div>
