@@ -368,6 +368,8 @@
 
         let prio = (v.priority || 'normal').toLowerCase();
         let prioBadge = `<span class="prio-badge prio-${prio}">Prioridad: ${prio}</span>`;
+        
+        // CORREGIDO: Aquí mostramos correctamente el mecánico asignado con su icono, y separado el trabajo
         let mechBadge = v.mechanic ? `<span class="mech-badge">👨‍🔧 ${v.mechanic}</span>` : '';
 
         let actionButtons = `
@@ -484,7 +486,6 @@
       document.getElementById(modalId).style.display = 'none';
     }
 
-    // COMPRESOR AUTOMÁTICO DE IMAGEN PARA SUBIDA RÁPIDA
     async function executePhotoUpload() {
       const plate = document.getElementById('photoTargetPlate').value;
       const fileInput = document.getElementById('modalPhotoInput');
