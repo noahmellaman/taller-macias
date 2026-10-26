@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal del Cliente | Automóviles Macías</title>
   
-  <!-- Tipografías Industriales -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,700;1,700&family=Teko:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -16,404 +15,89 @@
       --card-bg: rgba(16, 22, 34, 0.92);
       --accent-orange: #ff6b00;
       --accent-orange-glow: rgba(255, 107, 0, 0.35);
-      --accent-blue: #0077ff;
       --text: #f1f5f9;
       --text-muted: #94a3b8;
       --border-steel: rgba(255, 255, 255, 0.12);
-      --success-green: #10b981;
-      --success-glow: rgba(16, 185, 129, 0.35);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 
     body {
       background: #080b10;
-      background-image: 
-        linear-gradient(180deg, rgba(8, 11, 16, 0.85) 0%, rgba(8, 11, 16, 0.95) 100%),
+      background-image: linear-gradient(180deg, rgba(8, 11, 16, 0.85) 0%, rgba(8, 11, 16, 0.95) 100%),
         url('https://images.unsplash.com/photo-1613214149922-f1809c99b414?q=80&w=1920&auto=format&fit=crop');
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px 15px;
+      background-size: cover; background-position: center; background-attachment: fixed;
+      color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 15px;
     }
 
-    .main-container {
-      width: 100%;
-      max-width: 580px;
-      display: flex;
-      flex-direction: column;
-      gap: 22px;
-    }
+    .main-container { width: 100%; max-width: 580px; display: flex; flex-direction: column; gap: 22px; }
 
-    /* TARJETA ESTILO INDUSTRIAL */
     .workshop-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--border-steel);
-      border-radius: 16px;
-      padding: 30px 24px;
-      box-shadow: 
-        0 25px 50px -12px rgba(0, 0, 0, 0.9),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      position: relative;
-      overflow: hidden;
+      background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-steel); border-radius: 16px; padding: 30px 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9); position: relative; overflow: hidden;
     }
 
-    /* Tira de Precaución/Taller Superior */
     .workshop-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 4px;
-      background: repeating-linear-gradient(
-        -45deg,
-        #ff6b00,
-        #ff6b00 12px,
-        #111 12px,
-        #111 24px
-      );
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: repeating-linear-gradient(-45deg, #ff6b00, #ff6b00 12px, #111 12px, #111 24px);
     }
 
-    .brand-header {
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-    }
+    .brand-header { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .brand-logo-badge { width: 56px; height: 56px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 2px solid var(--accent-orange); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 0 20px var(--accent-orange-glow); margin-bottom: 4px; }
+    .brand-title { font-family: 'Teko', sans-serif; font-size: 2.5rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; line-height: 1; color: #ffffff; }
+    .brand-subtitle { font-size: 0.82rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.04); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.08); margin-top: 4px; }
 
-    .brand-logo-badge {
-      width: 56px;
-      height: 56px;
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-      border: 2px solid var(--accent-orange);
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.8rem;
-      box-shadow: 0 0 20px var(--accent-orange-glow);
-      margin-bottom: 4px;
-    }
+    .search-box-container { margin-top: 24px; display: flex; flex-direction: column; gap: 14px; width: 100%; }
+    .input-frame { position: relative; width: 100%; background: #090d14; border: 2px solid #232d3f; border-radius: 12px; display: flex; align-items: center; padding: 4px 8px; }
+    .input-frame:focus-within { border-color: var(--accent-orange); box-shadow: 0 0 20px var(--accent-orange-glow); }
+    .input-icon { padding: 0 12px; font-size: 1.3rem; color: var(--accent-orange); }
+    .plate-input { flex: 1; background: transparent; border: none; color: #ffffff; font-family: 'Chakra Petch', sans-serif; font-size: 1.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 4px; outline: none; padding: 12px 0; }
+    .plate-input::placeholder { color: #334155; letter-spacing: normal; font-family: 'Inter', sans-serif; font-size: 1.05rem; }
 
-    .brand-title {
-      font-family: 'Teko', sans-serif;
-      font-size: 2.5rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      line-height: 1;
-      color: #ffffff;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-    }
+    .btn-submit { width: 100%; padding: 16px; border-radius: 12px; border: none; background: linear-gradient(135deg, #ff6b00 0%, #d95200 100%); color: #ffffff; font-family: 'Chakra Petch', sans-serif; font-size: 1.1rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 20px var(--accent-orange-glow); }
 
-    .brand-subtitle {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.04);
-      padding: 6px 12px;
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      margin-top: 4px;
-    }
+    .result-section { display: none; flex-direction: column; gap: 22px; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* BUSCADOR DE MATRÍCULA */
-    .search-box-container {
-      margin-top: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      width: 100%;
-    }
+    .vehicle-header-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-steel); padding-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+    .client-name { font-size: 1.3rem; font-weight: 700; color: #ffffff; }
+    .plate-badge-metal { background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%); color: #0f172a; font-family: 'Chakra Petch', sans-serif; font-weight: 700; padding: 6px 14px; border-radius: 8px; font-size: 1.2rem; letter-spacing: 3px; border: 2px solid #0f172a; }
 
-    .input-frame {
-      position: relative;
-      width: 100%;
-      background: #090d14;
-      border: 2px solid #232d3f;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      padding: 4px 8px;
-      transition: all 0.3s;
-    }
-
-    .input-frame:focus-within {
-      border-color: var(--accent-orange);
-      box-shadow: 0 0 20px var(--accent-orange-glow);
-    }
-
-    .input-icon {
-      padding: 0 12px;
-      font-size: 1.3rem;
-      color: var(--accent-orange);
-    }
-
-    .plate-input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: #ffffff;
-      font-family: 'Chakra Petch', sans-serif;
-      font-size: 1.5rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 4px;
-      outline: none;
-      padding: 12px 0;
-    }
-
-    .plate-input::placeholder {
-      color: #334155;
-      letter-spacing: normal;
-      font-family: 'Inter', sans-serif;
-      font-size: 1.05rem;
-      font-weight: 500;
-    }
-
-    .btn-submit {
-      width: 100%;
-      padding: 16px;
-      border-radius: 12px;
-      border: none;
-      background: linear-gradient(135deg, #ff6b00 0%, #d95200 100%);
-      color: #ffffff;
-      font-family: 'Chakra Petch', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      cursor: pointer;
-      box-shadow: 0 4px 20px var(--accent-orange-glow);
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .btn-submit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 25px rgba(255, 107, 0, 0.5);
-      background: linear-gradient(135deg, #ff7a1a 0%, #e65c00 100%);
-    }
-
-    .btn-submit:active { transform: translateY(0); }
-
-    /* RESULTADO DE LA REPARACIÓN */
-    .result-section {
-      display: none;
-      flex-direction: column;
-      gap: 22px;
-      animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .vehicle-header-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--border-steel);
-      padding-bottom: 16px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .client-name {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: #ffffff;
-    }
-
-    .plate-badge-metal {
-      background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
-      color: #0f172a;
-      font-family: 'Chakra Petch', sans-serif;
-      font-weight: 700;
-      padding: 6px 14px;
-      border-radius: 8px;
-      font-size: 1.2rem;
-      letter-spacing: 3px;
-      border: 2px solid #0f172a;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-    }
-
-    .details-grid {
-      background: rgba(9, 13, 20, 0.8);
-      border: 1px solid var(--border-steel);
-      padding: 16px;
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      font-size: 0.92rem;
-    }
-
-    .detail-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
+    .details-grid { background: rgba(9, 13, 20, 0.8); border: 1px solid var(--border-steel); padding: 16px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px; font-size: 0.92rem; }
+    .detail-row { display: flex; justify-content: space-between; align-items: center; }
     .detail-label { color: var(--text-muted); }
     .detail-value { font-weight: 600; color: #ffffff; text-align: right; }
 
-    /* BOTÓN DE REFRESCAR ESTADO */
-    .refresh-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 4px;
-    }
+    .photo-gallery-section { display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--border-steel); padding-top: 16px; }
+    .gallery-title { font-family: 'Chakra Petch', sans-serif; font-size: 1.1rem; color: var(--accent-orange); display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 6px; }
+    .photo-card { background: rgba(0,0,0,0.5); border: 1px solid var(--border-steel); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
+    .photo-card img { width: 100%; height: 110px; object-fit: cover; cursor: pointer; transition: transform 0.2s; }
+    .photo-card img:hover { transform: scale(1.05); }
+    .photo-info { padding: 8px; font-size: 0.75rem; color: var(--text-muted); }
+    .photo-comment { font-weight: 600; color: #ffffff; margin-bottom: 2px; }
 
-    .btn-refresh-status {
-      background: rgba(255, 107, 0, 0.15);
-      border: 1px solid var(--accent-orange);
-      color: var(--accent-orange);
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
+    .refresh-bar { display: flex; justify-content: space-between; align-items: center; }
+    .btn-refresh-status { background: rgba(255, 107, 0, 0.15); border: 1px solid var(--accent-orange); color: var(--accent-orange); padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
 
-    .btn-refresh-status:hover {
-      background: var(--accent-orange);
-      color: #ffffff;
-    }
+    .status-timeline { display: flex; flex-direction: column; gap: 10px; }
+    .timeline-step { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 10px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); opacity: 0.35; }
+    .timeline-step.completed { opacity: 0.8; border-color: rgba(16, 185, 129, 0.3); }
+    .timeline-step.active { opacity: 1; border-color: var(--accent-orange); background: rgba(255, 107, 0, 0.1); }
+    .step-icon-box { font-size: 1.3rem; width: 40px; height: 40px; border-radius: 10px; background: rgba(255, 255, 255, 0.05); display: flex; align-items: center; justify-content: center; }
+    .timeline-step.active .step-icon-box { background: var(--accent-orange); color: #ffffff; }
 
-    .btn-refresh-status.spinning .spin-icon {
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* CRONOGRAMA PASO A PASO */
-    .status-timeline {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .timeline-step {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 12px 16px;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      opacity: 0.35;
-      transition: all 0.3s;
-    }
-
-    .timeline-step.completed {
-      opacity: 0.8;
-      border-color: rgba(16, 185, 129, 0.3);
-    }
-
-    .timeline-step.active {
-      opacity: 1;
-      border-color: var(--accent-orange);
-      background: rgba(255, 107, 0, 0.1);
-      box-shadow: 0 0 20px rgba(255, 107, 0, 0.2);
-    }
-
-    .step-icon-box {
-      font-size: 1.3rem;
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.05);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .timeline-step.active .step-icon-box {
-      background: var(--accent-orange);
-      color: #ffffff;
-      box-shadow: 0 0 12px var(--accent-orange-glow);
-    }
-
-    .step-title-text {
-      font-family: 'Chakra Petch', sans-serif;
-      font-weight: 700;
-      font-size: 1rem;
-    }
-
-    .step-desc-text {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-
-    .timeline-step.active .step-desc-text { color: #fed7aa; }
-
-    /* BOTONES DE CONTACTO */
-    .actions-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 5px;
-    }
-
-    .btn-action {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 14px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 0.9rem;
-      transition: opacity 0.2s;
-    }
-
-    .btn-action:hover { opacity: 0.9; }
+    .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn-action { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 0.9rem; }
     .btn-whatsapp { background: #25d366; color: #ffffff; }
     .btn-maps { background: #2563eb; color: #ffffff; }
-
-    .error-card {
-      display: none;
-      background: rgba(239, 68, 68, 0.12);
-      border: 1px solid rgba(239, 68, 68, 0.35);
-      color: #fca5a5;
-      padding: 16px;
-      border-radius: 12px;
-      text-align: center;
-      font-size: 0.9rem;
-      line-height: 1.4;
-    }
+    .error-card { display: none; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); color: #fca5a5; padding: 16px; border-radius: 12px; text-align: center; }
   </style>
 </head>
 <body>
 
   <div class="main-container">
-    <!-- BLOQUE PRINCIPAL DEL TALLER -->
     <div class="workshop-card brand-header">
       <div class="brand-logo-badge">⚙️</div>
       <h1 class="brand-title">Automóviles Macías</h1>
@@ -421,7 +105,6 @@
         <span>📍 Pol. Ind. Huerta de las Pilas Nave 2 • Algeciras</span>
       </div>
 
-      <!-- BUSCADOR -->
       <div class="search-box-container">
         <div class="input-frame">
           <span class="input-icon">🔍</span>
@@ -433,12 +116,10 @@
       </div>
     </div>
 
-    <!-- MENSAJE DE ERROR -->
     <div id="errorMsg" class="error-card">
       ⚠️ No se ha encontrado ningún vehículo activo registrado con esa matrícula. Revisa la numeración o ponte en contacto con el taller.
     </div>
 
-    <!-- TARJETA DE RESULTADOS -->
     <div id="resultContainer" class="workshop-card result-section">
       <div class="vehicle-header-bar">
         <div>
@@ -461,91 +142,64 @@
           <span class="detail-label">Fecha de entrada:</span>
           <span class="detail-value" id="dateText">-</span>
         </div>
-        <div id="notesRow" style="display: none; color: #fde68a; border-top: 1px solid var(--border-steel); padding-top: 8px; margin-top: 4px;">
+        <div id="notesRow" style="display: none; color: #fde68a; border-top: 1px solid var(--border-steel); padding-top: 8px;">
           📝 <b>Nota del Taller:</b> <span id="notesText">-</span>
         </div>
       </div>
 
-      <div class="refresh-bar">
-        <h3 style="font-family: 'Chakra Petch', sans-serif; font-size: 1rem; color: var(--accent-orange); text-transform: uppercase;">Estado de la Reparación</h3>
-        <button class="btn-refresh-status" id="refreshBtn" onclick="checkStatus(true)">
-          <span class="spin-icon">🔄</span> Actualizar Estado
-        </button>
+      <div id="gallerySection" class="photo-gallery-section" style="display: none;">
+        <div class="gallery-title">📷 Avances Fotográficos del Taller</div>
+        <div id="galleryGrid" class="gallery-grid"></div>
       </div>
 
-      <!-- TIMELINE DE ESTADOS -->
+      <div class="refresh-bar">
+        <h3 style="font-family: 'Chakra Petch', sans-serif; font-size: 1rem; color: var(--accent-orange); text-transform: uppercase;">Estado de la Reparación</h3>
+        <button class="btn-refresh-status" id="refreshBtn" onclick="checkStatus(true)">🔄 Actualizar</button>
+      </div>
+
       <div class="status-timeline">
         <div class="timeline-step" id="step-espera">
           <div class="step-icon-box">📥</div>
-          <div>
-            <div class="step-title-text">1. Recepción</div>
-            <div class="step-desc-text">Vehículo recibido en taller y en cola de revisión.</div>
-          </div>
+          <div><div style="font-weight: 700;">1. Recepción</div><div style="font-size: 0.8rem; color: var(--text-muted);">Vehículo recibido en taller.</div></div>
         </div>
-
         <div class="timeline-step" id="step-diagnostico">
           <div class="step-icon-box">🔍</div>
-          <div>
-            <div class="step-title-text">2. En Diagnóstico</div>
-            <div class="step-desc-text">Revisando componentes y verificando la avería.</div>
-          </div>
+          <div><div style="font-weight: 700;">2. En Diagnóstico</div><div style="font-size: 0.8rem; color: var(--text-muted);">Revisando la avería.</div></div>
         </div>
-
         <div class="timeline-step" id="step-presupuesto">
           <div class="step-icon-box">📄</div>
-          <div>
-            <div class="step-title-text">3. Presupuesto</div>
-            <div class="step-desc-text">Calculando mano de obra y gestionando recambios.</div>
-          </div>
+          <div><div style="font-weight: 700;">3. Presupuesto</div><div style="font-size: 0.8rem; color: var(--text-muted);">Gestionando repuestos.</div></div>
         </div>
-
         <div class="timeline-step" id="step-proceso">
           <div class="step-icon-box">🛠️</div>
-          <div>
-            <div class="step-title-text">4. En Reparación</div>
-            <div class="step-desc-text">El equipo de mecánicos está trabajando en tu vehículo.</div>
-          </div>
+          <div><div style="font-weight: 700;">4. En Reparación</div><div style="font-size: 0.8rem; color: var(--text-muted);">Mecánicos trabajando en el vehículo.</div></div>
         </div>
-
         <div class="timeline-step" id="step-prueba">
           <div class="step-icon-box">🚗</div>
-          <div>
-            <div class="step-title-text">5. En Prueba</div>
-            <div class="step-desc-text">Realizando prueba de carretera y control de calidad.</div>
-          </div>
+          <div><div style="font-weight: 700;">5. En Prueba</div><div style="font-size: 0.8rem; color: var(--text-muted);">Prueba de carretera y calidad.</div></div>
         </div>
-
         <div class="timeline-step" id="step-terminado">
           <div class="step-icon-box">✅</div>
-          <div>
-            <div class="step-title-text">6. Listo para Recoger</div>
-            <div class="step-desc-text">¡Trabajo finalizado! Ya puedes pasar a retirar tu coche.</div>
-          </div>
+          <div><div style="font-weight: 700;">6. Listo para Recoger</div><div style="font-size: 0.8rem; color: var(--text-muted);">¡Vehículo listo!</div></div>
         </div>
       </div>
 
-      <!-- BOTONES DE ACCIÓN -->
       <div class="actions-grid">
-        <a href="https://wa.me/34600000000" id="wsBtn" target="_blank" class="btn-action btn-whatsapp">
-          💬 WhatsApp
-        </a>
-        <a href="https://maps.google.com/?q=Automoviles+Macias+Poligono+industrial+huerta+de+las+Pilas+Nave+2+Algeciras" target="_blank" class="btn-action btn-maps">
-          📍 Ver en Maps
-        </a>
+        <a href="https://wa.me/34600000000" id="wsBtn" target="_blank" class="btn-action btn-whatsapp">💬 WhatsApp</a>
+        <a href="https://maps.google.com/?q=Automoviles+Macias+Poligono+industrial+huerta+de+las+Pilas+Nave+2+Algeciras" target="_blank" class="btn-action btn-maps">📍 Ver en Maps</a>
       </div>
     </div>
   </div>
 
   <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzIyxw5sus-ChLaiW5XBY8NGgK4AB1U4Igwh7jl2vrcuq3B9D4dsGOd-wNRilBBtE_eFQ/exec";
+    // URL de Apps Script del taller
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz1tzWOHfahpYJyQNeT2La7KtRiMRK2L8fYKaaWjwpJXUti7Px8VL_s6Qnk2hg-h9SU/exec";
     const STATUS_ORDER = ['espera', 'diagnostico', 'presupuesto', 'proceso', 'prueba', 'terminado'];
 
-    // AL Cargar la página: busca si hay matrícula en la URL o guardada de antes
     window.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
       const urlPlate = urlParams.get('matricula');
       const savedPlate = localStorage.getItem('macias_last_plate');
-
       const plateToUse = urlPlate || savedPlate;
 
       if (plateToUse) {
@@ -558,23 +212,16 @@
       const input = document.getElementById('plateInput').value.trim().toUpperCase().replace(/[\s-]/g, '');
       const errorMsg = document.getElementById('errorMsg');
       const resultContainer = document.getElementById('resultContainer');
-      const refreshBtn = document.getElementById('refreshBtn');
       const searchBtn = document.getElementById('searchBtn');
       const btnText = document.getElementById('btnText');
 
       errorMsg.style.display = 'none';
 
-      if (!input) {
-        alert("Por favor, introduce una matrícula.");
-        return;
-      }
+      if (!input) { alert("Por favor, introduce una matrícula."); return; }
 
-      // Guardar la matrícula en el almacenamiento local
       localStorage.setItem('macias_last_plate', input);
 
-      if (isSoftRefresh) {
-        refreshBtn.classList.add('spinning');
-      } else {
+      if (!isSoftRefresh) {
         btnText.innerText = "Consultando...";
         searchBtn.disabled = true;
       }
@@ -582,7 +229,6 @@
       try {
         const response = await fetch(WEB_APP_URL);
         const data = await response.json();
-
         const vehicle = data.find(v => v.plate && v.plate.toUpperCase().replace(/[\s-]/g, '') === input);
 
         if (!vehicle) {
@@ -610,16 +256,36 @@
           document.getElementById('notesRow').style.display = 'none';
         }
 
-        document.getElementById('wsBtn').href = `https://wa.me/34600000000?text=Hola,%20quisiera%20consultar%20sobre%20mi%20coche%20(${vehicle.plate})`;
+        const gallerySection = document.getElementById('gallerySection');
+        const galleryGrid = document.getElementById('galleryGrid');
+        galleryGrid.innerHTML = '';
+
+        if (vehicle.photos && vehicle.photos.length > 0) {
+          gallerySection.style.display = 'flex';
+          vehicle.photos.forEach(photo => {
+            const card = document.createElement('div');
+            card.className = 'photo-card';
+            card.innerHTML = `
+              <a href="${photo.url}" target="_blank">
+                <img src="${photo.url}" alt="Foto avance">
+              </a>
+              <div class="photo-info">
+                <div class="photo-comment">${photo.comment}</div>
+                <div>${photo.date}</div>
+              </div>
+            `;
+            galleryGrid.appendChild(card);
+          });
+        } else {
+          gallerySection.style.display = 'none';
+        }
 
         updateTimeline(vehicle.status);
         resultContainer.style.display = 'flex';
 
       } catch (error) {
         console.error("Error:", error);
-        alert("No se pudo conectar con el servidor del taller. Inténtalo de nuevo.");
       } finally {
-        refreshBtn.classList.remove('spinning');
         btnText.innerText = "Consultar Estado";
         searchBtn.disabled = false;
       }
@@ -635,9 +301,7 @@
       STATUS_ORDER.forEach((statusKey, index) => {
         const stepEl = document.getElementById(`step-${statusKey}`);
         if (!stepEl) return;
-
         stepEl.classList.remove('active', 'completed');
-
         if (index < currentIndex) {
           stepEl.classList.add('completed');
         } else if (index === currentIndex) {
@@ -647,9 +311,7 @@
     }
 
     document.getElementById('plateInput').addEventListener('keypress', function (e) {
-      if (e.key === 'Enter') {
-        checkStatus();
-      }
+      if (e.key === 'Enter') { checkStatus(); }
     });
   </script>
 </body>
