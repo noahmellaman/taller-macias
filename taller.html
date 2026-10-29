@@ -123,11 +123,14 @@
     .photo-thumb-card { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; font-size: 0.7rem; }
     .photo-thumb-card img { width: 100%; height: 70px; object-fit: cover; display: block; }
 
-    /* Estilos específicos para la multiselección de fotos en el modal */
     .batch-photo-container { display: flex; flex-direction: column; gap: 12px; max-height: 350px; overflow-y: auto; padding-right: 5px; }
     .batch-photo-row { display: flex; gap: 12px; align-items: center; background: var(--item-bg); border: 1px solid var(--border); padding: 8px; border-radius: 6px; }
     .batch-photo-row img { width: 70px; height: 70px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
     .batch-photo-inputs { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+
+    /* Barra de progreso visual para la subida */
+    .progress-bar-container { display: none; width: 100%; background: var(--border); border-radius: 6px; overflow: hidden; height: 10px; margin-top: 8px; }
+    .progress-bar-fill { width: 0%; height: 100%; background: var(--success); transition: width 0.2s ease; }
 
     .log-item { background: var(--item-bg); padding: 10px; border-radius: 6px; font-size: 0.85rem; border: 1px solid var(--border); }
     .log-time { color: var(--muted); font-size: 0.75rem; display: block; margin-bottom: 4px; }
@@ -172,11 +175,11 @@
         <input type="text" id="task" placeholder="Trabajo (ej: Cambio de aceite)" required>
         
         <select id="mechanic">
-          <option value="">👨‍🔧 Sin asignar</option>
-          <option value="Jose">👨‍🔧 Jose</option>
-          <option value="Francisco">👨‍🔧 Francisco</option>
-          <option value="Paco">👨‍🔧 Paco</option>
-          <option value="Noah">👨‍🔧 Noah</option>
+          <option value="">👨‍🔧 Mecánico por asignar</option>
+          <option value="Mecánico 1">👨‍🔧 Mecánico 1</option>
+          <option value="Mecánico 2">👨‍🔧 Mecánico 2</option>
+          <option value="Especialista Motor">👨‍🔧 Especialista Motor</option>
+          <option value="Electricidad">👨‍🔧 Electricidad / Diagnosis</option>
         </select>
         
         <select id="priority">
@@ -199,11 +202,11 @@
       </div>
 
       <div class="mech-filters" id="mechFilters">
-        <button class="mech-filter-btn active" onclick="filterByMechanic('ALL', this)">Todos</button>
-        <button class="mech-filter-btn" onclick="filterByMechanic('Jose', this)">Jose</button>
-        <button class="mech-filter-btn" onclick="filterByMechanic('Francisco', this)">Francisco</button>
-        <button class="mech-filter-btn" onclick="filterByMechanic('Paco', this)">Paco</button>
-        <button class="mech-filter-btn" onclick="filterByMechanic('Noah', this)">Noah</button>
+        <button class="mech-filter-btn active" onclick="filterByMechanic('ALL', this)">Todos los vehículos</button>
+        <button class="mech-filter-btn" onclick="filterByMechanic('Mecánico 1', this)">Mecánico 1</button>
+        <button class="mech-filter-btn" onclick="filterByMechanic('Mecánico 2', this)">Mecánico 2</button>
+        <button class="mech-filter-btn" onclick="filterByMechanic('Especialista Motor', this)">Motor</button>
+        <button class="mech-filter-btn" onclick="filterByMechanic('Electricidad', this)">Electricidad</button>
       </div>
 
       <h2 id="sectionTitle">Vehículos en Taller</h2>
@@ -234,16 +237,16 @@
     </div>
   </div>
 
-  <!-- MODAL DE SUBIDA MÚLTIPLE DE FOTOS -->
+  <!-- MODAL DE SUBIDA MÚLTIPLE DE FOTOS CON PROGRESO -->
   <div id="uploadPhotoModal" class="modal-overlay">
     <div class="modal-content" style="max-width: 600px;">
       <div class="modal-header">
-        <h3 id="uploadModalTitle" style="color: var(--accent);">📷 Subir Varias Fotos de Avance</h3>
+        <h3 id="uploadModalTitle" style="color: var(--accent);">📷 Subir Fotos de Avance</h3>
         <button onclick="closeModal('uploadPhotoModal')" style="background: transparent; color: var(--muted); font-size: 1.2rem; cursor: pointer; border:none;">✕</button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="photoTargetPlate">
-        <div style="font-size: 0.9rem; color: var(--muted);">Selecciona varias fotos a la vez (puedes elegir varias o hacerlas). Cada una tendrá su descripción:</div>
+        <div style="font-size: 0.9rem; color: var(--muted);">Selecciona varias fotos a la vez. Se optimizarán automáticamente para subida rápida:</div>
         
         <div>
           <input type="file" id="modalPhotoInput" accept="image/*" multiple onchange="handleBatchFilesSelected(this)" style="width:100%;">
@@ -252,6 +255,12 @@
         <div id="batchPhotoList" class="batch-photo-container">
           <p style="color: var(--muted); text-align:center; font-size:0.85rem; padding: 20px;">Ninguna foto seleccionada aún.</p>
         </div>
+
+        <!-- Barra de progreso visual -->
+        <div id="uploadProgressContainer" class="progress-bar-container">
+          <div id="uploadProgressBar" class="progress-bar-fill"></div>
+        </div>
+        <div id="uploadProgressText" style="font-size: 0.78rem; color: var(--muted); text-align: center; display: none;">Subiendo imágenes...</div>
       </div>
       <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
         <button onclick="closeModal('uploadPhotoModal')" style="background: var(--border);">Cancelar</button>
@@ -267,7 +276,7 @@
     let currentTab = 'active';
     let selectedMechanicFilter = 'ALL';
     let lastDeletedVehicle = null;
-    let selectedBatchFiles = []; // Almacena los archivos seleccionados para subida múltiple
+    let selectedBatchFiles = [];
 
     function initTheme() {
       const isLight = localStorage.getItem('theme') === 'light';
@@ -373,16 +382,16 @@
 
         let prio = (v.priority || 'normal').toLowerCase();
         let prioBadge = `<span class="prio-badge prio-${prio}">Prioridad: ${prio}</span>`;
-        let mechBadge = v.mechanic ? `<span class="mech-badge">👨‍🔧 Mecánico: <b>${v.mechanic}</b></span>` : '<span class="mech-badge" style="color:var(--muted);">👨‍🔧 Sin asignar</span>';
+        let mechBadge = v.mechanic ? `<span class="mech-badge">👨‍🔧 <b>${v.mechanic}</b></span>` : '<span class="mech-badge" style="color:var(--muted);">👨‍🔧 Sin asignar</span>';
 
         let actionButtons = `
-          <button class="btn-sm btn-historial" title="Ver historial de visitas" onclick="openHistory('${v.plate}')">📜 Historial</button>
-          <button class="btn-sm btn-photo" title="Subir fotos de avance a Drive" onclick="openPhotoModal('${v.plate}')">📷 Fotos</button>
+          <button class="btn-sm btn-historial" title="Ver historial" onclick="openHistory('${v.plate}')">📜 Historial</button>
+          <button class="btn-sm btn-photo" title="Subir fotos" onclick="openPhotoModal('${v.plate}')">📷 Fotos</button>
         `;
 
         if (currentTab === 'active') {
           actionButtons += `
-            <button class="btn-sm btn-parts" title="Enviar aviso de recambios por WhatsApp" onclick="sendPartsWhatsApp('${v.client}', '${v.phone}', '${v.plate}')">📦 Recambios</button>
+            <button class="btn-sm btn-parts" title="Aviso recambios WhatsApp" onclick="sendPartsWhatsApp('${v.client}', '${v.phone}', '${v.plate}')">📦 Recambios</button>
             <button class="btn-sm btn-diag" onclick="changeStatus('${v.id}', 'diagnostico')">Diag.</button>
             <button class="btn-sm btn-presup" onclick="changeStatus('${v.id}', 'presupuesto')">Presup.</button>
             <button class="btn-sm btn-proceso" onclick="changeStatus('${v.id}', 'proceso')">Reparar</button>
@@ -430,7 +439,7 @@
       const modalTitle = document.getElementById('modalTitle');
       const modalBody = document.getElementById('modalBody');
 
-      modalTitle.innerText = `Historial de Reparaciones • Matrícula: ${plate}`;
+      modalTitle.innerText = `Historial • Matrícula: ${plate}`;
       modalBody.innerHTML = '';
 
       const records = vehicles.filter(v => v.plate && v.plate.toUpperCase().replace(/[\s-]/g, '') === plate.toUpperCase().replace(/[\s-]/g, ''));
@@ -463,10 +472,10 @@
             ${rec.mechanic ? `<div style="font-size:0.8rem; color:var(--muted);">👨‍🔧 Atendido por: ${rec.mechanic}</div>` : ''}
             ${photosHtml}
             <div style="margin-top: 8px;">
-              <label style="font-size: 0.8rem; color: var(--muted); display: block; margin-bottom: 3px;">Notas adicionales / Trabajos extra realizados:</label>
+              <label style="font-size: 0.8rem; color: var(--muted); display: block; margin-bottom: 3px;">Notas adicionales / Trabajos extra:</label>
               <div style="display: flex; gap: 8px;">
-                <input type="text" id="note_${rec.id}" value="${rec.notes || ''}" placeholder="Ej: Se cambió también el filtro..." style="flex: 1; font-size: 0.85rem; padding: 6px;">
-                <button class="btn-sm" onclick="saveNote('${rec.id}')" style="background: var(--success);">Guardar Nota</button>
+                <input type="text" id="note_${rec.id}" value="${rec.notes || ''}" placeholder="Ej: Se cambió filtro..." style="flex: 1; font-size: 0.85rem; padding: 6px;">
+                <button class="btn-sm" onclick="saveNote('${rec.id}')" style="background: var(--success);">Guardar</button>
               </div>
             </div>
           `;
@@ -483,6 +492,8 @@
       document.getElementById('modalPhotoInput').value = '';
       selectedBatchFiles = [];
       document.getElementById('batchPhotoList').innerHTML = '<p style="color: var(--muted); text-align:center; font-size:0.85rem; padding: 20px;">Ninguna foto seleccionada aún.</p>';
+      document.getElementById('uploadProgressContainer').style.display = 'none';
+      document.getElementById('uploadProgressText').style.display = 'none';
       document.getElementById('uploadPhotoModal').style.display = 'flex';
     }
 
@@ -505,7 +516,7 @@
             <img src="${e.target.result}" alt="Preview">
             <div class="batch-photo-inputs">
               <span style="font-size:0.75rem; color:var(--muted);">${file.name}</span>
-              <input type="text" id="comment_${index}" placeholder="Descripción (ej: Culata desmontada, carbonilla...)" style="width:100%; font-size:0.85rem; padding:6px;">
+              <input type="text" id="comment_${index}" placeholder="Descripción (ej: Culata desmontada...)" style="width:100%; font-size:0.85rem; padding:6px;">
             </div>
           `;
           listContainer.appendChild(row);
@@ -517,6 +528,9 @@
     async function executeBatchPhotoUpload() {
       const plate = document.getElementById('photoTargetPlate').value;
       const btnUpload = document.getElementById('btnUploadAction');
+      const progressContainer = document.getElementById('uploadProgressContainer');
+      const progressBar = document.getElementById('uploadProgressBar');
+      const progressText = document.getElementById('uploadProgressText');
 
       if (selectedBatchFiles.length === 0) {
         alert("Por favor, selecciona al menos una foto.");
@@ -524,16 +538,19 @@
       }
 
       btnUpload.disabled = true;
-      btnUpload.innerText = "Optimizando y subiendo fotos...";
+      btnUpload.innerText = "Subiendo...";
+      progressContainer.style.display = 'block';
+      progressText.style.display = 'block';
 
       try {
-        for (let i = 0; i < selectedBatchFiles.length; i++) {
+        const total = selectedBatchFiles.length;
+        for (let i = 0; i < total; i++) {
           const file = selectedBatchFiles[i];
           const commentInput = document.getElementById(`comment_${i}`);
           const comment = commentInput ? commentInput.value.trim() || "Avance de reparación" : "Avance de reparación";
 
-          // Comprimir imagen usando canvas
-          const compressedBase64 = await resizeImageFile(file);
+          // Compresión ultrarrápida (máx 800px, calidad 0.65)
+          const compressedBase64 = await resizeImageFileFast(file);
 
           const payload = {
             action: "uploadPhoto",
@@ -550,23 +567,31 @@
           if (data.result !== "success") {
             throw new Error("Error al subir una de las imágenes.");
           }
+
+          // Actualizar barra de progreso
+          const percent = Math.round(((i + 1) / total) * 100);
+          progressBar.style.width = percent + '%';
+          progressText.innerText = `Subiendo foto ${i + 1} de ${total} (${percent}%)`;
         }
 
-        alert("¡Todas las fotos se han subido y optimizado con éxito!");
+        alert("¡Fotos subidas y optimizadas con éxito!");
         closeModal('uploadPhotoModal');
-        addLog(`📷 <b>Fotos múltiples subidas a Drive (${plate}):</b> ${selectedBatchFiles.length} imágenes`);
+        addLog(`📷 <b>Fotos subidas (${plate}):</b> ${total} imágenes`);
         loadVehicles();
 
       } catch (err) {
         console.error(err);
-        alert("Hubo un error al subir algunas de las fotos. Comprueba la conexión.");
+        alert("Hubo un error al subir las fotos. Comprueba la conexión.");
       } finally {
         btnUpload.disabled = false;
         btnUpload.innerText = "Subir Todas a Drive";
+        progressContainer.style.display = 'none';
+        progressText.style.display = 'none';
       }
     }
 
-    function resizeImageFile(file) {
+    // Compresión ultra optimizada para velocidad
+    function resizeImageFileFast(file) {
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -577,12 +602,11 @@
             let width = img.width;
             let height = img.height;
             
-            const MAX_WIDTH = 1000;
-            const MAX_HEIGHT = 1000;
+            const MAX_SIZE = 800; // Reducido para mayor velocidad de subida
             if (width > height) {
-              if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+              if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
             } else {
-              if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+              if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
             }
             
             canvas.width = width;
@@ -590,7 +614,7 @@
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
             
-            resolve(canvas.toDataURL('image/jpeg', 0.75));
+            resolve(canvas.toDataURL('image/jpeg', 0.65)); // Calidad optimizada
           };
         };
         reader.readAsDataURL(file);
@@ -609,16 +633,12 @@
       try {
         await fetch(WEB_APP_URL, {
           method: "POST",
-          body: JSON.stringify({
-            action: "updateNote",
-            id: id,
-            notes: newNote
-          })
+          body: JSON.stringify({ action: "updateNote", id: id, notes: newNote })
         });
         addLog(`📝 <b>Nota guardada (${vehicle.plate}):</b> ${newNote}`);
-        alert("¡Nota guardada correctamente!");
+        alert("¡Nota guardada!");
       } catch (error) {
-        alert("Error al guardar la nota en la nube.");
+        alert("Error al guardar la nota.");
       }
     }
 
@@ -655,7 +675,7 @@
         render();
         addLog(`🚗 <b>Nuevo coche (${newV.plate}):</b> Prioridad ${newV.priority.toUpperCase()}`);
       } catch (error) {
-        alert("Hubo un error al guardar en la nube.");
+        alert("Error al guardar en la nube.");
       } finally {
         btn.disabled = false;
         btn.textContent = "+ Añadir Vehículo al Taller";
@@ -667,9 +687,7 @@
       if (vehicleIndex === -1) return;
       const vehicle = vehicles[vehicleIndex];
 
-      if (!confirm(`⚠️ ¿Seguro que deseas ELIMINAR el registro de ${vehicle.plate} (${vehicle.client})?`)) {
-        return;
-      }
+      if (!confirm(`⚠️ ¿Seguro que deseas ELIMINAR el registro de ${vehicle.plate}?`)) return;
 
       lastDeletedVehicle = { vehicle: { ...vehicle }, index: vehicleIndex };
       vehicles.splice(vehicleIndex, 1);
@@ -682,12 +700,12 @@
         });
         addLog(`🗑️ <b>Eliminado:</b> ${vehicle.plate} <button onclick="undoDelete()" style="background:transparent; color:var(--accent); text-decoration:underline; border:none; cursor:pointer; font-size:0.8rem; padding:0; margin-left:6px;">↩️ Deshacer</button>`);
       } catch (error) {
-        alert("Error al eliminar el registro en la nube.");
+        alert("Error al eliminar.");
       }
     }
 
     async function undoDelete() {
-      if (!lastDeletedVehicle) return alert("No hay ningún elemento reciente para restaurar.");
+      if (!lastDeletedVehicle) return alert("No hay elementos para restaurar.");
       const restoredV = lastDeletedVehicle.vehicle;
       restoredV.action = "add";
 
@@ -700,9 +718,8 @@
         lastDeletedVehicle = null;
         render();
         addLog(`↩️ <b>Restaurado:</b> ${restoredV.plate}`);
-        alert("¡Registro restaurado con éxito!");
       } catch (error) {
-        alert("Error al restaurar el vehículo.");
+        alert("Error al restaurar.");
       }
     }
 
@@ -720,14 +737,14 @@
         });
 
         if (newStatus === 'terminado') {
-          const mensaje = encodeURIComponent(`Hola ${vehicle.client}, le informamos desde Automóviles Macías que su vehículo con matrícula ${vehicle.plate} ya está listo para recoger en el taller.`);
+          const mensaje = encodeURIComponent(`Hola ${vehicle.client}, le informamos desde Automóviles Macías que su vehículo (${vehicle.plate}) ya está listo para recoger.`);
           window.open(`https://wa.me/${vehicle.phone}?text=${mensaje}`, '_blank');
           addLog(`📱 <b>Aviso WhatsApp listo para:</b> ${vehicle.client}`);
         } else if (newStatus === 'archivado') {
           addLog(`📦 <b>${vehicle.plate}:</b> Vehículo archivado.`);
         }
       } catch (error) {
-        alert("Error al actualizar el estado.");
+        alert("Error al actualizar estado.");
       }
     }
 
