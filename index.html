@@ -192,8 +192,7 @@
   </div>
 
   <script>
-    // NUEVA URL de Apps Script del taller sincronizada correctamente
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyDyEpJ70tmZGiIiAkyrHKFJBWaNnhag7FgLUAi_V0sdEBiBX0-P2crBTDjWBnhXG4P/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxqujnw_wMejOpK9XqsdzpHjhoAL5I53X__Jj_STjS9XTZLFToc0XHHjKdhzX_MAUAL/exec";
     const STATUS_ORDER = ['espera', 'diagnostico', 'presupuesto', 'proceso', 'prueba', 'terminado'];
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -270,8 +269,8 @@
                 <img src="${photo.url}" alt="Foto avance">
               </a>
               <div class="photo-info">
-                <div class="photo-comment">${photo.comment}</div>
-                <div>${photo.date}</div>
+                <div class="photo-comment">${photo.comment || 'Avance'}</div>
+                <div>${photo.date || ''}</div>
               </div>
             `;
             galleryGrid.appendChild(card);
