@@ -109,7 +109,7 @@
     }
     .modal-content {
       background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-      width: 100%; max-width: 600px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden;
+      width: 100%; max-width: 650px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden;
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
     }
     .modal-header { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
@@ -122,6 +122,12 @@
     .photo-thumb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-top: 8px; }
     .photo-thumb-card { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; font-size: 0.7rem; }
     .photo-thumb-card img { width: 100%; height: 70px; object-fit: cover; display: block; }
+
+    /* Estilos específicos para la multiselección de fotos en el modal */
+    .batch-photo-container { display: flex; flex-direction: column; gap: 12px; max-height: 350px; overflow-y: auto; padding-right: 5px; }
+    .batch-photo-row { display: flex; gap: 12px; align-items: center; background: var(--item-bg); border: 1px solid var(--border); padding: 8px; border-radius: 6px; }
+    .batch-photo-row img { width: 70px; height: 70px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+    .batch-photo-inputs { flex: 1; display: flex; flex-direction: column; gap: 6px; }
 
     .log-item { background: var(--item-bg); padding: 10px; border-radius: 6px; font-size: 0.85rem; border: 1px solid var(--border); }
     .log-time { color: var(--muted); font-size: 0.75rem; display: block; margin-bottom: 4px; }
@@ -228,41 +234,40 @@
     </div>
   </div>
 
-  <!-- MODAL DE SUBIDA DE FOTOS -->
+  <!-- MODAL DE SUBIDA MÚLTIPLE DE FOTOS -->
   <div id="uploadPhotoModal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 450px;">
+    <div class="modal-content" style="max-width: 600px;">
       <div class="modal-header">
-        <h3 id="uploadModalTitle" style="color: var(--accent);">📷 Subir Foto de Avance a Drive</h3>
+        <h3 id="uploadModalTitle" style="color: var(--accent);">📷 Subir Varias Fotos de Avance</h3>
         <button onclick="closeModal('uploadPhotoModal')" style="background: transparent; color: var(--muted); font-size: 1.2rem; cursor: pointer; border:none;">✕</button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="photoTargetPlate">
-        <div style="font-size: 0.9rem; color: var(--muted);">Selecciona la foto o hazla directamente con la cámara del móvil (se optimizará automáticamente para subirse al instante):</div>
+        <div style="font-size: 0.9rem; color: var(--muted);">Selecciona varias fotos a la vez (puedes elegir varias o hacerlas). Cada una tendrá su descripción:</div>
         
         <div>
-          <label style="font-size: 0.8rem; color: var(--muted); display: block; margin-bottom: 4px;">Imagen / Cámara:</label>
-          <input type="file" id="modalPhotoInput" accept="image/*" capture="environment" style="width:100%;">
+          <input type="file" id="modalPhotoInput" accept="image/*" multiple onchange="handleBatchFilesSelected(this)" style="width:100%;">
         </div>
-        
-        <div>
-          <label style="font-size: 0.8rem; color: var(--muted); display: block; margin-bottom: 4px;">Comentario de la foto:</label>
-          <input type="text" id="modalPhotoComment" placeholder="Ej: Estado de la culata desmontada" style="width:100%;">
+
+        <div id="batchPhotoList" class="batch-photo-container">
+          <p style="color: var(--muted); text-align:center; font-size:0.85rem; padding: 20px;">Ninguna foto seleccionada aún.</p>
         </div>
       </div>
       <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
         <button onclick="closeModal('uploadPhotoModal')" style="background: var(--border);">Cancelar</button>
-        <button onclick="executePhotoUpload()" id="btnUploadAction" style="background: var(--accent);">Subir a Drive</button>
+        <button onclick="executeBatchPhotoUpload()" id="btnUploadAction" style="background: var(--accent);">Subir Todas a Drive</button>
       </div>
     </div>
   </div>
 
   <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz1tzWOHfahpYJyQNeT2La7KtRiMRK2L8fYKaaWjwpJXUti7Px8VL_s6Qnk2hg-h9SU/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxqujnw_wMejOpK9XqsdzpHjhoAL5I53X__Jj_STjS9XTZLFToc0XHHjKdhzX_MAUAL/exec";
 
     let vehicles = [];
     let currentTab = 'active';
     let selectedMechanicFilter = 'ALL';
     let lastDeletedVehicle = null;
+    let selectedBatchFiles = []; // Almacena los archivos seleccionados para subida múltiple
 
     function initTheme() {
       const isLight = localStorage.getItem('theme') === 'light';
@@ -368,13 +373,11 @@
 
         let prio = (v.priority || 'normal').toLowerCase();
         let prioBadge = `<span class="prio-badge prio-${prio}">Prioridad: ${prio}</span>`;
-        
-        // Mecánico claramente diferenciado con su etiqueta
         let mechBadge = v.mechanic ? `<span class="mech-badge">👨‍🔧 Mecánico: <b>${v.mechanic}</b></span>` : '<span class="mech-badge" style="color:var(--muted);">👨‍🔧 Sin asignar</span>';
 
         let actionButtons = `
           <button class="btn-sm btn-historial" title="Ver historial de visitas" onclick="openHistory('${v.plate}')">📜 Historial</button>
-          <button class="btn-sm btn-photo" title="Subir foto de avance a Drive" onclick="openPhotoModal('${v.plate}')">📷 Foto</button>
+          <button class="btn-sm btn-photo" title="Subir fotos de avance a Drive" onclick="openPhotoModal('${v.plate}')">📷 Fotos</button>
         `;
 
         if (currentTab === 'active') {
@@ -476,9 +479,10 @@
 
     function openPhotoModal(plate) {
       document.getElementById('photoTargetPlate').value = plate;
-      document.getElementById('uploadModalTitle').innerText = `📷 Subir Foto • Coche: ${plate}`;
+      document.getElementById('uploadModalTitle').innerText = `📷 Subir Fotos • Coche: ${plate}`;
       document.getElementById('modalPhotoInput').value = '';
-      document.getElementById('modalPhotoComment').value = '';
+      selectedBatchFiles = [];
+      document.getElementById('batchPhotoList').innerHTML = '<p style="color: var(--muted); text-align:center; font-size:0.85rem; padding: 20px;">Ninguna foto seleccionada aún.</p>';
       document.getElementById('uploadPhotoModal').style.display = 'flex';
     }
 
@@ -486,78 +490,111 @@
       document.getElementById(modalId).style.display = 'none';
     }
 
-    async function executePhotoUpload() {
+    function handleBatchFilesSelected(input) {
+      if (!input.files || input.files.length === 0) return;
+      selectedBatchFiles = Array.from(input.files);
+      const listContainer = document.getElementById('batchPhotoList');
+      listContainer.innerHTML = '';
+
+      selectedBatchFiles.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const row = document.createElement('div');
+          row.className = 'batch-photo-row';
+          row.innerHTML = `
+            <img src="${e.target.result}" alt="Preview">
+            <div class="batch-photo-inputs">
+              <span style="font-size:0.75rem; color:var(--muted);">${file.name}</span>
+              <input type="text" id="comment_${index}" placeholder="Descripción (ej: Culata desmontada, carbonilla...)" style="width:100%; font-size:0.85rem; padding:6px;">
+            </div>
+          `;
+          listContainer.appendChild(row);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function executeBatchPhotoUpload() {
       const plate = document.getElementById('photoTargetPlate').value;
-      const fileInput = document.getElementById('modalPhotoInput');
-      const commentInput = document.getElementById('modalPhotoComment');
       const btnUpload = document.getElementById('btnUploadAction');
 
-      if (!fileInput.files || fileInput.files.length === 0) {
-        alert("Por favor, selecciona una foto o haz una foto con la cámara.");
+      if (selectedBatchFiles.length === 0) {
+        alert("Por favor, selecciona al menos una foto.");
         return;
       }
 
       btnUpload.disabled = true;
-      btnUpload.innerText = "Optimizando y subiendo...";
+      btnUpload.innerText = "Optimizando y subiendo fotos...";
 
-      const file = fileInput.files[0];
-      const reader = new FileReader();
+      try {
+        for (let i = 0; i < selectedBatchFiles.length; i++) {
+          const file = selectedBatchFiles[i];
+          const commentInput = document.getElementById(`comment_${i}`);
+          const comment = commentInput ? commentInput.value.trim() || "Avance de reparación" : "Avance de reparación";
 
-      reader.onload = function(e) {
-        const img = new Image();
-        img.src = e.target.result;
-        img.onload = async function() {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          
-          const MAX_WIDTH = 1000;
-          const MAX_HEIGHT = 1000;
-          if (width > height) {
-            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-          } else {
-            if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-          }
-          
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+          // Comprimir imagen usando canvas
+          const compressedBase64 = await resizeImageFile(file);
 
           const payload = {
             action: "uploadPhoto",
             plate: plate,
             imageData: compressedBase64,
-            comment: commentInput.value || "Avance de reparación"
+            comment: comment
           };
 
-          try {
-            const res = await fetch(WEB_APP_URL, {
-              method: "POST",
-              body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-            if (data.result === "success") {
-              alert("¡Foto subida y optimizada con éxito!");
-              closeModal('uploadPhotoModal');
-              addLog(`📷 <b>Foto subida a Drive (${plate}):</b> ${commentInput.value || 'Avance'}`);
-              loadVehicles();
-            } else {
-              alert("Error al subir la foto.");
-            }
-          } catch (err) {
-            console.error(err);
-            alert("Error de conexión al subir la foto.");
-          } finally {
-            btnUpload.disabled = false;
-            btnUpload.innerText = "Subir a Drive";
+          const res = await fetch(WEB_APP_URL, {
+            method: "POST",
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (data.result !== "success") {
+            throw new Error("Error al subir una de las imágenes.");
           }
-        };
-      };
+        }
 
-      reader.readAsDataURL(file);
+        alert("¡Todas las fotos se han subido y optimizado con éxito!");
+        closeModal('uploadPhotoModal');
+        addLog(`📷 <b>Fotos múltiples subidas a Drive (${plate}):</b> ${selectedBatchFiles.length} imágenes`);
+        loadVehicles();
+
+      } catch (err) {
+        console.error(err);
+        alert("Hubo un error al subir algunas de las fotos. Comprueba la conexión.");
+      } finally {
+        btnUpload.disabled = false;
+        btnUpload.innerText = "Subir Todas a Drive";
+      }
+    }
+
+    function resizeImageFile(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.src = e.target.result;
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            
+            const MAX_WIDTH = 1000;
+            const MAX_HEIGHT = 1000;
+            if (width > height) {
+              if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+            } else {
+              if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            resolve(canvas.toDataURL('image/jpeg', 0.75));
+          };
+        };
+        reader.readAsDataURL(file);
+      });
     }
 
     async function saveNote(id) {
